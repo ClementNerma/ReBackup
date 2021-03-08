@@ -148,6 +148,10 @@ rebackup path_to_backup/ -f '! git check-ignore "$REBACKUP_ITEM"' --shell zsh --
 rebackup --help
 ```
 
+## Changelog
+
+You can see all changes through the version in the [CHANGELOG](CHANGELOG.md).
+
 ## License
 
 This project is released under the [Apache-2.0](LICENSE.md) license terms.
