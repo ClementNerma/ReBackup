@@ -93,30 +93,10 @@ fn walk_item(
 
     debug!("> Treating item: {}", item_path.display());
 
-    // Canonicalize the path
-    let canonicalized = fs::canonicalize(&item_path).map_err(|err| WalkerErr::FailedToCanonicalize(item_path.clone(), err))?;
-
     // Ensure items are not treated twice
     if !history.insert(item_path.clone()) {
         err!("Item was already walked on, skippping it: {}", item_path.display());
         return Ok(());
-    } else if item_path != canonicalized && !history.insert(canonicalized.clone()) {
-        err!(
-            "Symbolic link was already walked on, skippping it: {} => {}",
-            item_path.display(),
-            canonicalized.display()
-        );
-        return Ok(());
-    }
-
-    // Get the symlink's true path (if applicable)
-    if item_type == WalkerItemType::Symlink {
-        let sym_target = fs::read_link(&item_path).map_err(|err| WalkerErr::FailedToReadSymlinkTarget(item_path.clone(), err))?;
-
-        if history.contains(&sym_target) {
-            err!("Symlink target was already walked on, skipping it: {}", item_path.display());
-            return Ok(());
-        }
     }
 
     // If asked to, ignore symbolic links
@@ -126,7 +106,26 @@ fn walk_item(
             return Ok(());
         }
 
+        let sym_target = fs::read_link(&item_path).map_err(|err| WalkerErr::FailedToReadSymlinkTarget(item_path.clone(), err))?;
+
+        if history.contains(&sym_target) {
+            err!("Symlink target was already walked on, skipping it: {}", item_path.display());
+            return Ok(());
+        }
+
         debug!(">> Detected symlink, following it based on configuration.");
+    }
+
+    // Canonicalize the path
+    let canonicalized = fs::canonicalize(&item_path).map_err(|err| WalkerErr::FailedToCanonicalize(item_path.clone(), err))?;
+
+    if item_path != canonicalized && !history.insert(canonicalized.clone()) {
+        err!(
+            "Symbolic link was already walked on, skippping it: {} => {}",
+            item_path.display(),
+            canonicalized.display()
+        );
+        return Ok(());
     }
 
     // Run all rules
