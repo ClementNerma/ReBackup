@@ -5,7 +5,7 @@
 
 use crate::config::{WalkerConfig, WalkerRule, WalkerRuleResult};
 use crate::WalkerItemType;
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -36,7 +36,7 @@ pub fn walk(dir: &Path, config: &WalkerConfig) -> Result<Vec<PathBuf>, WalkerErr
         return Err(WalkerErr::DirNotFound);
     }
 
-    let mut history = BTreeSet::new();
+    let mut history = HashSet::new();
     history.insert(dir.clone());
 
     walk_nested(&dir, config, &dir, &mut history)
@@ -45,7 +45,7 @@ pub fn walk(dir: &Path, config: &WalkerConfig) -> Result<Vec<PathBuf>, WalkerErr
 /// (Internal) Walk through a directory (recursively) to build a list of files to backup
 ///
 /// Provided directory path must be canonicalized and guaranteed to be a directory.
-fn walk_nested(dir: &Path, config: &WalkerConfig, canonicalized_source: &Path, history: &mut BTreeSet<PathBuf>) -> Result<Vec<PathBuf>, WalkerErr> {
+fn walk_nested(dir: &Path, config: &WalkerConfig, canonicalized_source: &Path, history: &mut HashSet<PathBuf>) -> Result<Vec<PathBuf>, WalkerErr> {
     debug!("Walking into directory: {}", dir.display());
 
     let mut items = vec![];
@@ -71,7 +71,7 @@ fn walk_item(
     item_path: PathBuf,
     config: &WalkerConfig,
     canonicalized_source: &Path,
-    history: &mut BTreeSet<PathBuf>,
+    history: &mut HashSet<PathBuf>,
     items: &mut Vec<PathBuf>,
 ) -> Result<(), WalkerErr> {
     // Get the item's metadata
