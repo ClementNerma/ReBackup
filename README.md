@@ -136,13 +136,13 @@ rebackup path_to_backup/ -a | tar -czf output.tgz -T -
 
 # Using filters to exclude items based on patterns
 # Here we're excluding all items ignored by the '.gitignore' file in Git repositories
-rebackup path_to_backup/ -f '! git check-ignore "$REBACKUP_ITEM"'
+rebackup path_to_backup/ -f 'git rev-parse --git-dir && ! git check-ignore "$REBACKUP_ITEM"'
 
 # To also exclude the ".git" folder (using glob pattern):
-rebackup path_to_backup/ -f '! git check-ignore "$REBACKUP_ITEM"' -e '**/.git'
+rebackup path_to_backup/ -f 'git rev-parse --git-dir && ! git check-ignore "$REBACKUP_ITEM"' -e '**/.git'
 
 # Use an alternate shell:
-rebackup path_to_backup/ -f '! git check-ignore "$REBACKUP_ITEM"' --shell zsh --shell-head-args=-c
+rebackup path_to_backup/ -f 'git rev-parse --git-dir && ! git check-ignore "$REBACKUP_ITEM"' --shell zsh --shell-head-args=-c
 
 # To list all available arguments:
 rebackup --help
